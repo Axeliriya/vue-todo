@@ -1,0 +1,34 @@
+import axios from 'axios';
+import { computed, onMounted, ref, watch } from 'vue';
+
+export function usePosts(limit = 5) {
+  const posts = ref([]);
+  const totalPages = ref(1);
+  const isLoading = ref(true);
+
+  const fatching = async () => {
+    try {
+      const res = await axios.get(
+        'https://jsonplaceholder.typicode.com/posts',
+        {
+          params: {
+            _page: this.page,
+            _limit: limit,
+          },
+        },
+      );
+      totalPages.value = Math.ceil(res.headers['x-total-count'] / limit);
+      posts.value = res.data;
+    } catch (e) {
+      console.log(e?.message);
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  onMounted() {};
+  onCreated() {};
+  computed() {};
+  watch() {}
+
+}

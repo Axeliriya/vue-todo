@@ -32,7 +32,7 @@ const routes = [
     component: PostPageWidthStore,
   },
   {
-    path: '/composition',
+    path: '/store',
     component: PostPageCompositionApi,
   },
 ];

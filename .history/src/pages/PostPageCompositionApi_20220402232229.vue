@@ -1,17 +1,9 @@
 <template>
   <header class="header">
-    <h1 class="title">Store</h1>
+    <h1 class="title">Posts</h1>
     <div class="head">
-      <custom-input
-        :model-value="searchQuery"
-        @update:model-value="setSearchQuery"
-        placeholder="Search..."
-      />
-      <custom-select
-        :model-value="selectedSort"
-        @update:model-value="setSelectedSort"
-        :options="sortOptions"
-      />
+      <custom-input v-model="searchQuery" placeholder="Search..." />
+      <custom-select v-model="selectedSort" :options="sortOptions" />
       <custom-btn @click="showModal">Create Post</custom-btn>
     </div>
   </header>
@@ -31,7 +23,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
+import axios from 'axios';
 import PostList from '@/components/PostList';
 import PostForm from '@/components/PostForm';
 
@@ -43,29 +35,13 @@ export default {
   data() {
     return {
       show: false,
+      sortOptions: [
+        { value: 'title', name: 'Name' },
+        { value: 'body', name: 'Description' },
+      ],
     };
   },
-  methods: {
-    ...mapMutations({
-      setPage: 'post/setPage',
-      setSearchQuery: 'post/setSearchQuery',
-      setSelectedSort: 'post/setSelectedSort',
-    }),
-    ...mapActions({
-      fetchPosts: 'post/fetchPosts',
-      loadMorePosts: 'post/loadMorePosts',
-    }),
-    createPost(post) {
-      this.posts.push(post);
-      this.show = false;
-    },
-    removePost(post) {
-      this.posts = this.posts.filter(({ id }) => id !== post.id);
-    },
-    showModal() {
-      this.show = true;
-    },
-  },
+  methods: {},
   mounted() {
     this.fetchPosts();
     const options = {
@@ -81,21 +57,16 @@ export default {
     observer.observe(this.$refs.observer);
   },
   computed: {
-    ...mapState({
-      posts: state => state.post.posts,
-      isLoading: state => state.post.isLoading,
-      isLoadingPage: state => state.post.isLoadingPage,
-      page: state => state.post.page,
-      limit: state => state.post.limit,
-      totalPages: state => state.post.totalPages,
-      searchQuery: state => state.post.searchQuery,
-      selectedSort: state => state.post.selectedSort,
-      sortOptions: state => state.post.sortOptions,
-    }),
-    ...mapGetters({
-      sortedPosts: 'post/sortedPosts',
-      sortedAndSearchedPosts: 'post/sortedAndSearchedPosts',
-    }),
+    sortedPosts() {
+      return [...this.posts].sort((a, b) =>
+        a[this.selectedSort]?.localeCompare(b[this.selectedSort]),
+      );
+    },
+    sortedAndSearchedPosts() {
+      return this.sortedPosts.filter(({ title }) =>
+        title.toLowerCase().includes(this.searchQuery.toLowerCase()),
+      );
+    },
   },
 };
 </script>
@@ -118,6 +89,21 @@ export default {
   gap: 20px;
   grid-column: 2/ -2;
 }
+
+/* .pages {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  grid-column: 2/ -2;
+} */
+
+/* .pages__btn {
+  width: 50px;
+} */
+
+/* .pages__btn--current {
+  background: rgb(3, 2, 53, 0.7) !important;
+} */
 
 .loader {
   text-align: center;
